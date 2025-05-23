@@ -1,3 +1,4 @@
+# src/core/__init__.py
 from .gameobject import GameObject
 from .gameobjectmanager import GameObjectManager
 from .singleton import Singleton

@@ -25,6 +25,9 @@ class Vector2:
     
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
+    
+    def __lt__(self, other):
+        return self.Magnitude < other.Magnitude()
 
     def __hash__(self):
         return hash((self.x, self.y))

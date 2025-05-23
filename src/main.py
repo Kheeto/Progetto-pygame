@@ -1,6 +1,7 @@
 import pygame
 import sys
 from core import *
+from ai import *
 
 pygame.init()
 
@@ -25,6 +26,8 @@ gameObjectManager.AddGameObject(
     )
 )
 renderer = Renderer(camera_pos, UNIT_SCALE, screen)
+
+grid = Grid(45, 20, [])
 
 while True:
     screen_size = Vector2.FromTuple(screen.get_size())
