@@ -1,4 +1,5 @@
 from core.vector2 import Vector2
+from core.vector2int import Vector2Int
 from ai.grid import Grid
 
 class Agent:
@@ -22,7 +23,9 @@ class Agent:
         if not self.target:
             return None
 
-        path = Grid.instance.find_path(self.position, self.target)
+        positionInt = Vector2Int(int(round(self.position.x)), int(round(self.position.y)))
+        targetInt = Vector2Int(int(round(self.target.x)), int(round(self.target.y)))
+        path = Grid.instance.find_path(positionInt , targetInt)
         if not path or path == []:
             return None
         

@@ -2,6 +2,7 @@ import pygame
 import sys
 from core import *
 from ai import *
+from characters.character import *
 
 pygame.init()
 
@@ -16,15 +17,24 @@ clock = pygame.time.Clock()
 
 camera_pos = Vector2(0, 0)
 
+# Background setting
+
+
 gameObjectManager = GameObjectManager()
 gameObjectManager.AddGameObject(
-    GameObject(
+    Character(
         id=1,
         position=Vector2(10,10),
         scale=Vector2(2,2),
         color=(0,200,0),
+        agent = Agent(
+            position=Vector2(10,10),
+            target=Vector2(20,20)
+        ),
+        speed=1
     )
 )
+
 renderer = Renderer(camera_pos, UNIT_SCALE, screen)
 
 grid = Grid(45, 20, [])

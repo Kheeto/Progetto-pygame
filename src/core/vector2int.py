@@ -1,27 +1,27 @@
 import math
 
-class Vector2:
+class Vector2Int:
     """
-    A Vector2 is a two-dimensional vector that stores two floating point numbers: x and y.
+    A Vector2Int is a two-dimensional vector that stores two integers: x and y.
     """
 
-    def __init__(self, x: float, y: float):
+    def __init__(self, x: int, y: int):
         self.x = x
         self.y = y
 
     def __add__(self, other):
-        return Vector2(self.x + other.x, self.y + other.y)
+        return Vector2Int(self.x + other.x, self.y + other.y)
 
     def __sub__(self, other):
-        return Vector2(self.x - other.x, self.y - other.y)
+        return Vector2Int(self.x - other.x, self.y - other.y)
 
-    def __mul__(self, scalar: float):
-        return Vector2(self.x * scalar, self.y * scalar)
+    def __mul__(self, scalar: int):
+        return Vector2Int(self.x * scalar, self.y * scalar)
 
-    def __truediv__(self, scalar: float):
+    def __truediv__(self, scalar: int):
         if scalar == 0:
             raise ValueError("Division by zero.")
-        return Vector2(self.x / scalar, self.y / scalar)
+        return Vector2Int(self.x / scalar, self.y / scalar)
     
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
@@ -39,7 +39,7 @@ class Vector2:
         return math.hypot(self.x, self.y)
     
     def Normalized(self):
-        if self.Magnitude() == 0: return Vector2(0, 0)
+        if self.Magnitude() == 0: return Vector2Int(0, 0)
         else: return self / self.Magnitude()
 
     def Tuple(self):
