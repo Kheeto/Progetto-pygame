@@ -2,7 +2,7 @@ import pygame
 from characters.character import Character
 from core import *
 
-class Turret(Character):
+class Canon(Character):
     def __init__(self, agent = None, speed = 0):
         super().__init__(agent, speed)
         self.life = 100 # da modificare

@@ -2,7 +2,7 @@ import pygame
 import sys
 from core import *
 from ai import *
-from characters.character import *
+from characters import *
 
 pygame.init()
 
@@ -11,14 +11,11 @@ UNIT_SCALE = 10
 CAMERA_SPEED = 1
 ZOOM_SPEED = 1.1
 
-screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
+screen = pygame.display.set_mode((1188, 737), pygame.RESIZABLE)
 pygame.display.set_caption("Gioco fighissimo")
 clock = pygame.time.Clock()
 
 camera_pos = Vector2(0, 0)
-
-# Background setting
-
 
 gameObjectManager = GameObjectManager()
 gameObjectManager.AddGameObject(
@@ -37,7 +34,7 @@ gameObjectManager.AddGameObject(
 
 renderer = Renderer(camera_pos, UNIT_SCALE, screen)
 
-grid = Grid(45, 20, [])
+grid = Grid(45, 30, [])
 
 while True:
     screen_size = Vector2.FromTuple(screen.get_size())

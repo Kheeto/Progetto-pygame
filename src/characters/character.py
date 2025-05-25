@@ -15,4 +15,4 @@ class Character(GameObject):
         if direction is None:
           return
 
-        self.position += direction * self.speed
+        self.position += direction * self.speed * dt

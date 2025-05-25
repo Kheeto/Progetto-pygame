@@ -25,9 +25,9 @@ class Agent:
 
         positionInt = Vector2Int(int(round(self.position.x)), int(round(self.position.y)))
         targetInt = Vector2Int(int(round(self.target.x)), int(round(self.target.y)))
-        path = Grid.instance.find_path(positionInt , targetInt)
-        if not path or path == []:
+        path = Grid.instance.find_path(positionInt, targetInt)
+        if not path or len(path) < 2:
             return None
         
-        direction = (Vector2.FromTuple(path[1]) - self.position).Normalized()
+        direction = (path[1] - self.position).Normalized()
         return direction
