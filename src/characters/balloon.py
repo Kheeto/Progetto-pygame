@@ -1,5 +1,5 @@
 import pygame
-from characters.character import Character
+from character import Character
 from core import *
 
 class Balloon(Character):

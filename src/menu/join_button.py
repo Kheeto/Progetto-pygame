@@ -1,13 +1,13 @@
 import pygame
 
 class Join_Button():
-    def __init__(self, center_pos = (0,0)):    
+    def __init__(self, center_pos=(0, 0)):
         self.center = center_pos
-        
+
         # General Surface Settings
-        self.join_button_size = (300,130)
+        self.join_button_size = (300, 130)
         self.join_button_surf = pygame.surface.Surface(self.join_button_size)
-        self.join_button_surf.fill((255,255,255))
+        self.join_button_surf.fill((255, 255, 255))
 
         self.join_button_rect = self.join_button_surf.get_rect()
         self.join_button_rect.center = self.center
@@ -38,21 +38,24 @@ class Join_Button():
 
         return False
 
-    def render(self, screen):
-        # Handling click events
+    def update(self):
         if self.is_clicked():
-            if not self.clicked:
-                self.join_button_surf.fill('Red')
-                self.clicked = True
-            else:
-                self.join_button_surf.fill('White')
-                self.clicked = False
+            self.clicked = True
+        else:
+            self.clicked = False
+
+    def render(self, screen):
+        # Cambia colore se cliccato
+        if self.clicked:
+            self.join_button_surf.fill('Red')
+        else:
+            self.join_button_surf.fill((255, 255, 255))
 
         pos_x = (screen.get_width() - self.join_button_size[0]) // 2
         pos_y = self.center[1]
 
         self.join_button_rect.topleft = (pos_x, pos_y)
         self.font_rect.center = self.join_button_rect.center
-        
+
         screen.blit(self.join_button_surf, self.join_button_rect)
         screen.blit(self.font_surf, self.font_rect)
