@@ -17,8 +17,6 @@ class Client(Singleton):
         self.SERVER_PORT = server_port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        self.Connect()
-    
     def Connect(self):
         try:
             self.socket.connect((self.SERVER_IP, self.SERVER_PORT))
@@ -36,8 +34,12 @@ class Client(Singleton):
         except socket.error as e:
             print(f"[CLIENT] Error disconnecting: {e}")
 
-    def SendMessage(self, message: str):
-        packet = {}
+    def SendMessage(self):
+        packet = {
+            "type": "deploy_unit",
+            "unit": 1,
+            "position": {"x": 10, "y": 10},
+        }
         try:
             self.socket.sendall(json.dumps(packet).encode())
         except:
@@ -50,7 +52,9 @@ class Client(Singleton):
                 if data:
                     packet = json.loads(data.decode())
                     if packet["type"] == "game_state":
-                        print(f"Received state at {packet['timestamp']} with {len(packet['units'])} units")
+                        print(f"Received state with {len(packet['game_state']['units'])} units")
+                    time.sleep(0.01)
+                    return packet
             except BlockingIOError:
                 continue
             except json.JSONDecodeError:

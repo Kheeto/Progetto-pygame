@@ -59,26 +59,31 @@ class Server(Singleton):
                 if data:
                     packet = json.loads(data.decode())
                     print(f"[SERVER] Received data from {player_id}: {packet}")
+                else:
+                    break # Disconnect
                 time.sleep(0.01)
             except BlockingIOError:
                 continue
-            except (ConnectionResetError, json.JSONDecodeError):
+            except (ConnectionResetError, ConnectionAbortedError, json.JSONDecodeError, OSError):
                 break
 
         with self.lock:
-            self.clients.remove((conn, player_id))
+            try:
+                self.clients.remove((conn, player_id))
+            except ValueError:
+                pass
         conn.close()
         print(f"Client {player_id} disconnected")
 
     def BroadcastGameState(self):
-        self.game_state = GameManager.instance.GetGameState()
-
         while True:
+            GameManager.instance.UpdateGameState()
+            self.game_state = GameManager.instance.GetGameState()
+
             time.sleep(1 / self.TICK_RATE)
             with self.lock:
                 state_packet = json.dumps({
                     "type": "game_state",
-                    "timestamp": time.time(),
                     "game_state": self.game_state
                 }).encode()
 

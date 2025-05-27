@@ -11,6 +11,15 @@ class GameManager(Singleton):
         self.game_state = {}
 
     def UpdateGameState(self):
+        self.game_state = {
+            "units": [
+                {
+                    "id": 1,
+                    "position": {"x": 10, "y": 10},
+                    "texture": "unit_texture.png"
+                }
+            ]
+        }
         pass
 
     def GetGameState(self):
