@@ -1,6 +1,7 @@
 from .singleton import Singleton
 from .gameobject import GameObject
 import random
+import time
 
 class GameObjectManager(Singleton):
     """
@@ -21,19 +22,20 @@ class GameObjectManager(Singleton):
     def AddGameObject(self, gameObject: GameObject):
         if gameObject.id is None or gameObject.id == -1:
             gameObject.id = random.randint(0, 2**31 - 1)
-            while gameObject.id in self.gameObjects:
+            while self.gameObjects.get(gameObject.id) is not None:
                 gameObject.id = random.randint(0, 2**31 - 1)
             return self.AddGameObject(gameObject)
         elif gameObject.id not in self.gameObjects:
-            self.gameObjects[id] = gameObject
+            self.gameObjects[gameObject.id] = gameObject
 
             for tag in gameObject.tags:
                 if tag not in self.gameObjectsByTag:
                     self.gameObjectsByTag[tag] = []
                 self.gameObjectsByTag[tag].append(gameObject.id)
+
             return gameObject.id
         else:
-            raise ValueError(f"GameObject with id {id} already exists.")
+            raise ValueError(f"GameObject with id {gameObject.id} already exists.")
     
     def RemoveGameObject(self, id: int):
         if id in self.gameObjects:

@@ -27,6 +27,10 @@ while True:
                 elf.blink()
             if event.key == pygame.K_r:
                 elf.run()
+            if event.key == pygame.K_a:
+                goblin.attack()
+            if event.key == pygame.K_i:
+                goblin.idle()
 
         #prova per il goblin
         if event.type == pygame.KEYDOWN:

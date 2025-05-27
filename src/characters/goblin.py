@@ -16,8 +16,9 @@ class Goblin(Character):
         self.rect.center = (123, 123)
 
         self.animations = {
-            'idle': [self.img],
+            'idle': self.load_animation('goblin_', 5),
             'run': self.load_animation('goblin_run_', 8),
+            'attack': self.load_animation('goblin_attack_', 4),
         }
 
         self.current_action = 'idle'
@@ -59,3 +60,9 @@ class Goblin(Character):
 
     def run(self):
         self.play('run')
+
+    def attack(self):
+        self.play('attack')
+    
+    def idle(self):
+        self.play('idle')

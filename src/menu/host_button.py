@@ -7,7 +7,10 @@ class Host_Button():
         # General Surface Settings
         self.host_button_size = (300, 130)
         self.host_button_surf = pygame.surface.Surface(self.host_button_size)
-        self.host_button_surf.fill((255, 255, 255))
+        self.default_color = (215, 215, 215)
+        self.hover_color = (180, 180, 180)
+        self.click_color = (217, 190, 72)
+        self.host_button_surf.fill(self.default_color)
 
         self.host_button_rect = self.host_button_surf.get_rect()
         self.host_button_rect.center = self.center
@@ -17,7 +20,7 @@ class Host_Button():
 
         # Text Surface Settings
         self.font_size = 50
-        self.font_color = 'Green'
+        self.font_color = 'Black'
         self.font = pygame.font.Font(r'src\menu\font\static\PixelifySans-Bold.ttf', self.font_size)
         self.font_surf = self.font.render("Host", True, self.font_color)
         self.font_rect = self.font_surf.get_rect()
@@ -45,11 +48,14 @@ class Host_Button():
             self.clicked = False
 
     def render(self, screen):
-        # Cambia colore se cliccato
+        mouse_pos = pygame.mouse.get_pos()
+
         if self.clicked:
-            self.host_button_surf.fill('Red')
+            self.host_button_surf.fill(self.click_color)
+        elif self.host_button_rect.collidepoint(mouse_pos):
+            self.host_button_surf.fill(self.hover_color)
         else:
-            self.host_button_surf.fill((255, 255, 255))
+            self.host_button_surf.fill(self.default_color)
 
         pos_x = (screen.get_width() - self.host_button_size[0]) // 2
         pos_y = self.center[1]

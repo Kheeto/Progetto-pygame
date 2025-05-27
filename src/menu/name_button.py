@@ -5,7 +5,7 @@ class Name_Button():
         self.center = center_pos
         self.name_button_size = (350, 130)
         self.name_button_surf = pygame.surface.Surface(self.name_button_size)
-        self.name_button_surf.fill((0, 0, 0))
+        self.name_button_surf.fill((181, 181, 181))
         self.name_button_rect = self.name_button_surf.get_rect()
         self.name_button_rect.center = self.center
 
@@ -15,9 +15,9 @@ class Name_Button():
         self.new_name_available = False
         self.text = ""
         self.font_size = 50
-        self.font_color = pygame.Color('Green')
+        self.font_color = pygame.Color('Black')
         self.font = pygame.font.Font(r'src\menu\font\static\PixelifySans-Bold.ttf', self.font_size)
-        self.font_surf = self.font.render("Name", True, self.font_color)
+        self.font_surf = self.font.render("Name...", True, self.font_color)
         self.font_rect = self.font_surf.get_rect()
         self.font_rect.center = self.name_button_rect.center
 
@@ -25,7 +25,7 @@ class Name_Button():
         # Cursor Settings
         self.cursor_visible = True
         self.cursor_counter = 0
-        self.cursor_switch_ms = 500  
+        self.cursor_switch_ms = 350  
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -45,7 +45,7 @@ class Name_Button():
                 if len(self.text) < 20:
                     self.text += event.unicode
 
-            display_text = self.text or "Name"
+            display_text = self.text or "Name..."
             if self.active and self.cursor_visible:
                 display_text += "|"
             self.font_surf = self.font.render(display_text, True, self.font_color)
@@ -59,7 +59,7 @@ class Name_Button():
         return None
 
     def render(self, screen):
-        bg_color = (200, 200, 255) if self.active else (0, 0, 0)
+        bg_color = (205, 205, 205) if self.active else (181, 181, 181)
         self.name_button_surf.fill(bg_color)
 
         pos_x = (screen.get_width() - self.name_button_size[0]) // 2
@@ -85,7 +85,7 @@ class Name_Button():
             display_text += "|"
 
         if not self.active and not self.text:
-            display_text = "Name"
+            display_text = "Name..."
 
         self.font_surf = self.font.render(display_text, True, self.font_color)
         self.font_rect = self.font_surf.get_rect(center=self.name_button_rect.center)
