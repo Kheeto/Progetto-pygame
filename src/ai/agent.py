@@ -6,7 +6,7 @@ class Agent:
     """
     An Agent is an entity that navigates the grid by costantly moving towards its target.
     """
-    def __init__(self, position: Vector2, target: Vector2):
+    def __init__(self, position: Vector2 = None, target: Vector2 = None):
         self.id = id
         self.position = position
         self.target = target
@@ -19,6 +19,8 @@ class Agent:
 
     def GetDirection(self) -> Vector2:
         if not Grid.instance:
+            return None
+        if not self.position:
             return None
         if not self.target:
             return None

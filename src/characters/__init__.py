@@ -1,6 +1,9 @@
 # src/characters/_init_.py
+from .castle import Castle
 from .character import Character
-from .tormex import Tormex
-from .turret import Turret
+from .dwarf import Dwarf
 from .elf import Elf
+from .explosion import Explosion
 from .goblin import Goblin
+from .projectile import Projectile
+from .health import Health

@@ -16,6 +16,15 @@ class Renderer(Singleton):
 
         self.unit_scale = min(scale_x, scale_y)
 
+    def pixels_to_units(self, pixel_pos: Vector2):
+        screen_size = Vector2.FromTuple(self.screen.get_size())
+        screen_center = screen_size / 2
+        delta = Vector2(
+            (pixel_pos.x - screen_center.x) / self.unit_scale,
+            (screen_center.y - pixel_pos.y) / self.unit_scale
+        )
+        return self.camera_pos + delta
+
     def units_to_pixels(self, pos: Vector2):
         screen_size = Vector2.FromTuple(self.screen.get_size())
         screen_center = screen_size / 2
@@ -26,7 +35,7 @@ class Renderer(Singleton):
         )
 
     def Render(self, unit_pos: Vector2, unit_size: Vector2, color=(0, 200, 0), texture: pygame.Surface = None):
-        unit_pos -= Vector2(14.5, 9.0)
+        unit_pos -= Vector2(14.5, 9.0) # Center on the screen
         pixel_pos = self.units_to_pixels(unit_pos)
         pixel_size = unit_size * self.unit_scale
         rect = pygame.Rect(pixel_pos.x, pixel_pos.y - pixel_size.y, pixel_size.x, pixel_size.y)

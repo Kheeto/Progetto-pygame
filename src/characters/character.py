@@ -2,16 +2,20 @@ from ai.agent import Agent
 from core.gameobject import GameObject
 from core.gameobjectmanager import GameObjectManager
 from core.vector2 import Vector2
+from characters.health import Health
+from core.renderer import Renderer
 
 class Character(GameObject):
     def __init__(self, id: int = -1, tags: list[str] = [], position: Vector2 = Vector2(0, 0), scale: Vector2 = Vector2(1, 1),
-                 rotation: float = 0.0,color = (255, 255, 255), agent: Agent = None, speed = float(1), targetTags : list[str] = []):
+                 rotation: float = 0.0,color = (255, 255, 255), agent: Agent = None, speed = float(1), targetTags : list[str] = [],
+                 maxHealth : float = 100):
         super().__init__(id=id, tags=tags, position=position, scale=scale, rotation=rotation, color=color)
         self.agent = agent
         self.speed = speed
         self.targetTags = targetTags
         self.currentTarget = None
         self.direction = None
+        self.health = Health(self.position + Vector2(0, 1.5), maxHealth)
 
     def Update(self, dt: float):
         self.agent.UpdatePosition(self.position)
@@ -20,7 +24,14 @@ class Character(GameObject):
         if self.direction is not None:
           self.position += self.direction * self.speed * dt
 
-        # Find a new target
+        self.LookForTargets()
+
+        self.health.position = self.position + Vector2(0, 1.5)
+        if self.health.current_life <= 0:
+           # Dead
+           GameObjectManager.instance.delQueue.append(self.character)
+
+    def LookForTargets(self):
         if self.currentTarget is None:
           targets = GameObjectManager.instance.GetGameObjectsByTagsAll(self.targetTags)
           closestTarget = GameObjectManager.instance.GetGameObjectById(targets[0]) if targets else None
@@ -35,3 +46,11 @@ class Character(GameObject):
             return
         
         self.agent.UpdateTarget(self.currentTarget.position)
+    
+    def Render(self):
+       self.health.Render()
+       super().Render()
+    
+    @property
+    def center(self):
+        return Vector2(self.position + self.scale / 2)

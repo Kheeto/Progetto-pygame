@@ -13,11 +13,23 @@ class GameObjectManager(Singleton):
 
         self.gameObjects = gameObjects
         self.gameObjectsByTag = gameObjectsByTag
+        # GameObjects to add or destroy at the end of frame, since it is not allowed to change
+        # the content of a dictionary during its iteration.
+        self.addQueue = []
+        self.delQueue = []
 
     def Update(self, delta_time: float):
         for gameObject in self.gameObjects.values():
             gameObject.Update(delta_time)
             gameObject.Render()
+        
+        for gameObject in self.addQueue:
+            self.AddGameObject(gameObject)
+            self.addQueue.remove(gameObject)
+
+        for gameObject in self.delQueue:
+            self.RemoveGameObject(gameObject.id)
+            self.delQueue.remove(gameObject)
 
     def AddGameObject(self, gameObject: GameObject):
         if gameObject.id is None or gameObject.id == -1:
@@ -35,7 +47,7 @@ class GameObjectManager(Singleton):
 
             return gameObject.id
         else:
-            raise ValueError(f"GameObject with id {gameObject.id} already exists.")
+            print(f"[ERROR] GameObject with id {gameObject.id} already exists.")
     
     def RemoveGameObject(self, id: int):
         if id in self.gameObjects:
@@ -48,7 +60,7 @@ class GameObjectManager(Singleton):
                     if not self.gameObjectsByTag[tag]:
                         del self.gameObjectsByTag[tag]
         else:
-            raise ValueError(f"GameObject with id {id} does not exist.")
+            print(f"[ERROR] GameObject with id {id} does not exist.")
     
     def GetGameObjectById(self, id: int) -> GameObject:
         return self.gameObjects[id] if id in self.gameObjects else None
@@ -60,12 +72,18 @@ class GameObjectManager(Singleton):
         """
         Returns a list of game objects that have ALL the specified tags.
         """
-        gameObjects = []
-        for tag in tags:
-            if tag in self.gameObjectsByTag:
-                gameObjects.extend(self.gameObjectsByTag[tag])
-        
-        return list(set(gameObjects))
+        if not tags:
+            return []
+        if tags[0] not in self.gameObjectsByTag:
+            return []
+
+        objects = set(self.gameObjectsByTag[tags[0]])
+
+        for tag in tags[1:]:
+            if tag not in self.gameObjectsByTag:
+                return []
+            objects &= set(self.gameObjectsByTag[tag])
+        return list(objects)
     
     def GetGameObjectsByTags(self, tags: list[str]) -> list[GameObject]:
         """

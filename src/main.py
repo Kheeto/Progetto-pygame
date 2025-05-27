@@ -3,7 +3,8 @@ import sys
 from core import *
 from ai import *
 from characters import *
-from menu.menu import MainMenu
+from menu import *
+from multiplayer import *
 
 pygame.init()
 
@@ -12,44 +13,22 @@ UNIT_SCALE = 10
 CAMERA_SPEED = 1
 ZOOM_SPEED = 1.1
 
-screen = pygame.display.set_mode((1188, 737), pygame.RESIZABLE)
+screen = pygame.display.set_mode((1188, 737+50))
 pygame.display.set_caption("Gioco fighissimo")
+
 clock = pygame.time.Clock()
 font = pygame.font.Font('freesansbold.ttf', 20)
+
+pygame.mixer.init()
+pygame.mixer.music.load("src/audio/song.mp3")
+pygame.mixer.music.play(-1) # Loop
 
 menu = MainMenu(screen)
 
 camera_pos = Vector2(0, 0)
 
 gameObjectManager = GameObjectManager()
-
-personaggio1 = Elf(
-    id=1,
-    tags=["blue"],
-    position=Vector2(10,10),
-    scale=Vector2(2,2),
-    color=(200,200,0),
-    agent = Agent(
-        position=Vector2(10,10),
-        target=None
-    ),
-    speed=0.7,
-    targetTags=["red"]
-)
-personaggio2 = Elf(
-    id=3,
-    tags=["red"],
-    position=Vector2(20,3),
-    scale=Vector2(2,2),
-    color=(200,200,0),
-    agent = Agent(
-        position=Vector2(10,10),
-        target=None
-    ),
-    speed=0.7,
-    targetTags=["blue"],
-    flip=True
-)
+gameManager = GameManager()
 
 arena = GameObject(
     id=2,
@@ -57,10 +36,22 @@ arena = GameObject(
     scale=Vector2(29, 18),
     texture=pygame.image.load("src/img/Background.png").convert_alpha()
 )
+castle1 = Castle(
+    id=10,
+    tags=["blue", "building"],
+    position=Vector2(5, 8.5),
+    healthPosition=Vector2(2, 8.5)
+)
+castle2 = Castle(
+    id=11,
+    tags=["red", "building"],
+    position=Vector2(23, 8.5),
+    healthPosition=Vector2(26, 8.5)
+)
 
 GameObjectManager.instance.AddGameObject(arena)
-GameObjectManager.instance.AddGameObject(personaggio1)
-GameObjectManager.instance.AddGameObject(personaggio2)
+GameObjectManager.instance.AddGameObject(castle1)
+GameObjectManager.instance.AddGameObject(castle2)
 
 renderer = Renderer(camera_pos, UNIT_SCALE, screen)
 
@@ -68,6 +59,8 @@ blocked_positions = [
     # Water
     Vector2(12,0), Vector2(13,0), Vector2(14,0), Vector2(15,0), Vector2(16,0),
     Vector2(12,1), Vector2(13,1), Vector2(14,1), Vector2(15,1), Vector2(16,1),
+    Vector2(12,2), Vector2(13,2), Vector2(14,2), Vector2(15,2), Vector2(16,2),
+    Vector2(12,4), Vector2(13,4), Vector2(14,4), Vector2(15,4), Vector2(16,4),
     Vector2(12,5), Vector2(13,5), Vector2(14,5), Vector2(15,5), Vector2(16,5),
     Vector2(12,6), Vector2(13,6), Vector2(14,6), Vector2(15,6), Vector2(16,6),
     Vector2(12,7), Vector2(13,7), Vector2(14,7), Vector2(15,7), Vector2(16,7),
@@ -76,6 +69,8 @@ blocked_positions = [
     Vector2(12,10), Vector2(13,10), Vector2(14,10), Vector2(15,10), Vector2(16,10),
     Vector2(12,11), Vector2(13,11), Vector2(14,11), Vector2(15,11), Vector2(16,11),
     Vector2(12,12), Vector2(13,12), Vector2(14,12), Vector2(15,12), Vector2(16,12),
+    Vector2(12,13), Vector2(13,13), Vector2(14,13), Vector2(15,13), Vector2(16,13),
+    Vector2(12,15), Vector2(13,15), Vector2(14,15), Vector2(15,15), Vector2(16,15),
     Vector2(12,16), Vector2(13,16), Vector2(14,16), Vector2(15,16), Vector2(16,16),
     Vector2(12,17), Vector2(13,17), Vector2(14,17), Vector2(15,17), Vector2(16,17),
 
@@ -118,7 +113,8 @@ while True:
     screen.fill((30, 30, 30))
     screen_size = Vector2.FromTuple(screen.get_size())
 
-    for event in pygame.event.get():
+    events = pygame.event.get()
+    for event in events:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
@@ -126,22 +122,6 @@ while True:
         elif event.type == pygame.VIDEORESIZE:
             screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
 
-        # # Zoom
-        # elif event.type == pygame.MOUSEWHEEL:
-        #     screen_center = screen_size / 2
-        #     world_pos = camera_pos
-
-        #     old_scale = renderer.unit_scale
-        #     if event.y > 0:
-        #         renderer.unit_scale *= ZOOM_SPEED
-        #     elif event.y < 0:
-        #         renderer.unit_scale /= ZOOM_SPEED
-
-        #     ratio = old_scale / renderer.unit_scale
-
-        #     camera_pos.x = world_pos.x + (screen_center.x - screen_center.x) / renderer.unit_scale * (1 - ratio)
-        #     camera_pos.y = world_pos.y - (screen_center.y - screen_center.y) / renderer.unit_scale * (1 - ratio)
-        
         if menu_active:
             menu.handle_event(event)
     
@@ -163,21 +143,11 @@ while True:
         pygame.display.flip()
         continue
 
-    # # Input
-    # keys = pygame.key.get_pressed()
-    # delta = CAMERA_SPEED / renderer.unit_scale
-    # if keys[pygame.K_LEFT]:
-    #     camera_pos.x -= delta
-    # if keys[pygame.K_RIGHT]:
-    #     camera_pos.x += delta
-    # if keys[pygame.K_UP]:
-    #     camera_pos.y += delta
-    # if keys[pygame.K_DOWN]:
-    #     camera_pos.y -= delta
-
     dt = clock.tick(FPS) / 1000
 
     if not menu_active:
         GameObjectManager.instance.Update(dt)
+
+    cards.Update(screen, events, dt)
 
     pygame.display.flip()
