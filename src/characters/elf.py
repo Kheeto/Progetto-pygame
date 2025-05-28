@@ -8,9 +8,9 @@ from core.gameobjectmanager import GameObjectManager
 import pygame
 
 class Elf(Character):
-    def __init__(self, id: int = -1, tags: list[str] = [], position: Vector2 = Vector2(0, 0), scale: Vector2 = Vector2(1, 1),
-                 rotation: float = 0.0, color = (255, 255, 255), agent: Agent = None, speed = float(1), targetTags : list[str] = [], flip = False):
-        super().__init__(id, tags, position, scale, rotation, color, agent, speed, targetTags)
+    def __init__(self, id: int = -1, tags: list[str] = None, position: Vector2 = None, scale: Vector2 = None,
+                 rotation: float = 0.0, color = (255, 255, 255), agent: Agent = None, speed = 1.0, targetTags : list[str] = None, flip = False):
+        super().__init__(id, tags, position, scale, rotation, color, agent, speed, targetTags, 100)
 
         self.animations = {
             'idle': self.load_animation('elf_', 3),
@@ -73,7 +73,9 @@ class Elf(Character):
                 self.play('blink')
             if self.shoot_timer >= 0: self.shoot_timer += dt
             if self.shoot_timer > self.shoot_delay:
-                self.Shoot(self.agent.target - self.position)
+                self.flip = self.agent.target.x < self.position.x
+
+                self.Shoot(self.agent.target - self.GetLaunchPosition())
                 self.shoot_timer = -1
           else:
             self.position += self.direction * self.speed * dt
@@ -88,17 +90,20 @@ class Elf(Character):
            GameObjectManager.instance.delQueue.append(self)
 
     def Render(self):
-        self.flip = self.direction is None or self.direction.x < 0
+        self.flip = self.flip if self.direction is None else self.direction.x < 0
         self.texture = pygame.transform.flip(self.animations[self.current_action][self.current_frame], self.flip, False)
         super().Render()
 
+    def GetLaunchPosition(self):
+        return self.position + Vector2(-0.5 if self.flip else 1.5,0.4 if self.flip else 0)
+    
     # Shoot arrow
     def Shoot(self, direction):
         direction = direction.Normalized()
 
         projectile = Projectile(
-            id=-1, tags=["projectile"], position=self.position + Vector2(-0.5 if self.flip else 1.5,0.4 if self.flip else 0), scale=Vector2(0.9, 0.9),
+            id=-1, tags=["projectile"], position=self.GetLaunchPosition(), scale=Vector2(0.9, 0.9),
             rotation=0, color=(255,255,255), texture=pygame.image.load("src/img/arrow.png").convert_alpha(), direction=direction, speed=25,
-            damage=20
+            damage=20, targetTags=self.targetTags
         )
         GameObjectManager.instance.addQueue.append(projectile)

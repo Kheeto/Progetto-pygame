@@ -112,7 +112,9 @@ def Update(screen, events, dt):
                 # Using a deque for the deck gives more variability but is predictable
                 if mouse_pos[1] < HAND_Y and mana_costs[dragged_card.card_id] <= mana:
                     mana -= mana_costs[dragged_card.card_id]
-                    GameManager.instance.DeployCard(dragged_card.card_id, mouse_pos)
+                    player_tag = GameManager.instance.player_tag
+                    enemy_tag = GameManager.instance.enemy_tag
+                    GameManager.instance.DeployCard(dragged_card.card_id, mouse_pos, player_tag, enemy_tag, True)
                     # current_ids = [c.card_id for c in hand]
                     # new_id = get_new_card(deck, current_ids)
                     # if new_id is not None:

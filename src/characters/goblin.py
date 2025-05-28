@@ -5,9 +5,9 @@ from core.gameobjectmanager import GameObjectManager
 from ai.agent import Agent
 
 class Goblin(Character):
-    def __init__(self, id: int = -1, tags: list[str] = [], position: Vector2 = Vector2(0, 0), scale: Vector2 = Vector2(1, 1),
-                 rotation: float = 0.0, color = (255, 255, 255), agent: Agent = None, speed = float(1), targetTags : list[str] = [], flip = False):
-        super().__init__(id, tags, position, scale, rotation, color, agent, speed, targetTags)
+    def __init__(self, id: int = -1, tags: list[str] = None, position: Vector2 = None, scale: Vector2 = None,
+                 rotation: float = 0.0, color = (255, 255, 255), agent: Agent = None, speed = 1.0, targetTags : list[str] = None, flip = False):
+        super().__init__(id, tags, position, scale, rotation, color, agent, speed, targetTags, 35)
 
         self.animations = {
             'idle': self.load_animation('goblin_', 5),
@@ -21,7 +21,7 @@ class Goblin(Character):
         self.timer = 0.0
         self.attack_timer = 0.0
         self.attack_delay = 1.5
-        self.stop_distance = 0.5
+        self.stop_distance = 1
         self.flip = flip
         self.damage = 15
 
@@ -57,7 +57,8 @@ class Goblin(Character):
             if self.current_action == 'run': self.play('idle')
             self.attack_timer += dt
             if self.attack_timer >= self.attack_delay:
-                self.attack_timer = 0
+                self.flip = self.agent.target.x < self.position.x
+                self.attack_timer = 0.0
                 self.play('attack')
                 self.currentTarget.health.take_damage(self.damage)
           else:
@@ -73,6 +74,6 @@ class Goblin(Character):
            GameObjectManager.instance.delQueue.append(self)
 
     def Render(self):
-        self.flip = self.direction is None or self.direction.x < 0
+        self.flip = self.flip if self.direction is None else self.direction.x < 0
         self.texture = pygame.transform.flip(self.animations[self.current_action][self.current_frame], self.flip, False)
         super().Render()

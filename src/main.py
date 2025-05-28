@@ -39,13 +39,13 @@ arena = GameObject(
 castle1 = Castle(
     id=10,
     tags=["blue", "building"],
-    position=Vector2(5, 8.5),
+    position=Vector2(5.5, 8.5),
     healthPosition=Vector2(2, 8.5)
 )
 castle2 = Castle(
     id=11,
     tags=["red", "building"],
-    position=Vector2(23, 8.5),
+    position=Vector2(22.5, 8.5),
     healthPosition=Vector2(26, 8.5)
 )
 
@@ -109,6 +109,24 @@ grid = Grid(29, 18, blocked_positions)
 
 menu_active = True
 
+server = None
+client = None
+
+def hostGame():
+    server = Server()
+    gameManager.player_tag = "blue"
+    gameManager.enemy_tag = "red"
+
+def joinGame():
+    ip = menu.ip_button.text if menu.ip_button.text.strip() else "localhost"
+    port = 12345
+
+    client = Client(ip, port)
+    client.Connect()
+
+    gameManager.player_tag = "red"
+    gameManager.enemy_tag = "blue"
+
 while True:
     screen.fill((30, 30, 30))
     screen_size = Vector2.FromTuple(screen.get_size())
@@ -116,6 +134,8 @@ while True:
     events = pygame.event.get()
     for event in events:
         if event.type == pygame.QUIT:
+            if server is not None: server.Stop()
+            if client is not None: client.Disconnect()
             pygame.quit()
             sys.exit()
 
@@ -130,11 +150,11 @@ while True:
         menu.render()
 
     if menu.next_screen == "host":
-        print("Hai cliccato HOST")
+        hostGame()
         menu_active = False
         menu.next_screen = None
     elif menu.next_screen == "join":
-        print("Hai cliccato JOIN")
+        joinGame()
         menu_active = False
         menu.next_screen = None
 

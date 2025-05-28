@@ -8,12 +8,12 @@ class GameObject:
     A GameObject is a basic unique component of the game.
     """
 
-    def __init__(self, id: int = -1, tags: list[str] = [], position: Vector2 = Vector2(0, 0), scale: Vector2 = Vector2(1, 1),
+    def __init__(self, id: int = -1, tags: list[str] = None, position: Vector2 = None, scale: Vector2 = None,
                  rotation: float = 0.0, color = (255, 255, 255), texture : pygame.Surface = None):
         self.id = id
-        self.tags = tags
-        self.position = position
-        self.scale = scale
+        self.tags = tags if tags is not None else []
+        self.position = position if position is not None else Vector2(0,0)
+        self.scale = scale if scale is not None else Vector2(1,1)
         self.rotation = rotation
         self.color = color
         self.texture = texture

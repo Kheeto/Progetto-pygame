@@ -6,13 +6,13 @@ from characters.health import Health
 from core.renderer import Renderer
 
 class Character(GameObject):
-    def __init__(self, id: int = -1, tags: list[str] = [], position: Vector2 = Vector2(0, 0), scale: Vector2 = Vector2(1, 1),
-                 rotation: float = 0.0,color = (255, 255, 255), agent: Agent = None, speed = float(1), targetTags : list[str] = [],
+    def __init__(self, id: int = -1, tags: list[str] = None, position: Vector2 = None, scale: Vector2 = None,
+                 rotation: float = 0.0, color = (255, 255, 255), agent: Agent = None, speed : float = 1.0, targetTags : list[str] = None,
                  maxHealth : float = 100):
         super().__init__(id=id, tags=tags, position=position, scale=scale, rotation=rotation, color=color)
-        self.agent = agent
+        self.agent = agent if agent is not None else Agent()
         self.speed = speed
-        self.targetTags = targetTags
+        self.targetTags = targetTags if targetTags is not None else []
         self.currentTarget = None
         self.direction = None
         self.health = Health(self.position + Vector2(0, 1.5), maxHealth)
@@ -32,7 +32,7 @@ class Character(GameObject):
            GameObjectManager.instance.delQueue.append(self.character)
 
     def LookForTargets(self):
-        if self.currentTarget is None:
+        if self.currentTarget is None or GameObjectManager.instance.GetGameObjectById(self.currentTarget.id) is None:
           targets = GameObjectManager.instance.GetGameObjectsByTagsAll(self.targetTags)
           closestTarget = GameObjectManager.instance.GetGameObjectById(targets[0]) if targets else None
           if closestTarget is not None:

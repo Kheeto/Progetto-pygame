@@ -15,12 +15,12 @@ class Server(Singleton):
         super().__init__()
         self.clients = []
         self.lock = threading.Lock()
-        self.TICK_RATE = 50
+        self.TICK_RATE = 20
         self.BUFFER_SIZE = 4096
         self.socket = None
         self.game_state = None
 
-        self.Start()
+        threading.Thread(target=self.Start, daemon=True).start()
 
     def Start(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -28,7 +28,7 @@ class Server(Singleton):
         self.socket.listen()
         print("[SERVER] Listening on port 12345")
 
-        threading.Thread(target=self.BroadcastGameState, daemon=True).start()
+        threading.Thread(target=self.SendMessage, daemon=True).start()
 
         while True:
             conn, addr = self.socket.accept()
@@ -58,7 +58,16 @@ class Server(Singleton):
                 data = conn.recv(self.BUFFER_SIZE)
                 if data:
                     packet = json.loads(data.decode())
-                    print(f"[SERVER] Received data from {player_id}: {packet}")
+                    if packet["type"] == "deploy_unit":
+                        print("[SERVER] Received update from client")
+
+                        card_id = packet["content"]["card_id"]
+                        pos_x = packet["content"]["pos_x"]
+                        pos_y = packet["content"]["pos_y"]
+                        player_tag = packet["content"]["player_tag"]
+                        enemy_tag = packet["content"]["enemy_tag"]
+
+                        GameManager.instance.DeployCard(card_id, (pos_x, pos_y), player_tag, enemy_tag, False)
                 else:
                     break # Disconnect
                 time.sleep(0.01)
@@ -74,21 +83,43 @@ class Server(Singleton):
                 pass
         conn.close()
         print(f"Client {player_id} disconnected")
-
-    def BroadcastGameState(self):
+    
+    def SendMessage(self):
         while True:
-            GameManager.instance.UpdateGameState()
-            self.game_state = GameManager.instance.GetGameState()
-
             time.sleep(1 / self.TICK_RATE)
-            with self.lock:
-                state_packet = json.dumps({
-                    "type": "game_state",
-                    "game_state": self.game_state
-                }).encode()
 
-                for conn, _ in self.clients:
-                    try:
-                        conn.sendall(state_packet)
-                    except:
-                        continue
+            with self.lock:
+                content = None
+                updates = GameManager.instance.updates
+                if len(updates) > 0:
+                    content = updates[0]
+                    packet = json.dumps({
+                        "type": "deploy_unit",
+                        "content": content
+                    }).encode()
+
+                    for conn, _ in self.clients:
+                        try:
+                            print("[SERVER] Sent update to client")
+                            conn.sendall(packet)
+                            GameManager.instance.updates.pop(0)
+                        except:
+                            continue
+
+    # def BroadcastGameState(self):
+    #     while True:
+    #         GameManager.instance.UpdateGameState()
+    #         self.game_state = GameManager.instance.GetGameState()
+
+    #         time.sleep(1 / self.TICK_RATE)
+    #         with self.lock:
+    #             state_packet = json.dumps({
+    #                 "type": "game_state",
+    #                 "game_state": self.game_state
+    #             }).encode()
+
+    #             for conn, _ in self.clients:
+    #                 try:
+    #                     conn.sendall(state_packet)
+    #                 except:
+    #                     continue

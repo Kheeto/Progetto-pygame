@@ -5,9 +5,9 @@ from core import *
 from ai import *
 
 class Dwarf(Character):
-    def __init__(self, id: int = -1, tags: list[str] = [], position: Vector2 = Vector2(0, 0), scale: Vector2 = Vector2(1, 1),
-                 rotation: float = 0.0, color = (255, 255, 255), agent: Agent = None, targetTags : list[str] = [], flip = False):
-        super().__init__(id, tags, position, scale, rotation, color, agent, 0.0, targetTags)
+    def __init__(self, id: int = -1, tags: list[str] = None, position: Vector2 = None, scale: Vector2 = None,
+                 rotation: float = 0.0, color = (255, 255, 255), agent: Agent = None, targetTags : list[str] = None, flip = False):
+        super().__init__(id, tags, position, scale, rotation, color, agent, 0.0, targetTags, 100)
 
         self.animations = {
             'idle': self.load_animation('cannon_', 1),
@@ -57,14 +57,19 @@ class Dwarf(Character):
           if Vector2.Distance(self.position, self.agent.target) < self.attack_distance:
             self.attack_timer += dt
             if self.attack_timer >= self.attack_delay:
+                self.flip = self.agent.target.x < self.position.x
                 self.attack_timer = 0
                 self.play('shoot')
-                self.Shoot(self.agent.target - self.position)
+                self.Shoot(self.agent.target - self.GetLaunchPosition())
             self.blink_timer += dt
             if self.current_action == 'idle' and self.blink_timer >= self.blink_delay:
                 self.blink_timer = 0
                 self.play('blink')
           else:
+            # Castles cannot move, so if they are too far away to be hit, let's find
+            # another target.
+            if isinstance(self.currentTarget, Castle): self.currentTarget = None
+
             self.blink_timer += dt
             if self.current_action == 'idle' and self.blink_timer >= self.blink_delay:
                 self.blink_timer = 0
@@ -79,16 +84,20 @@ class Dwarf(Character):
            GameObjectManager.instance.delQueue.append(self)
 
     def Render(self):
+        self.flip = self.flip if self.direction is None else self.direction.x < 0
         self.texture = pygame.transform.flip(self.animations[self.current_action][self.current_frame], self.flip, False)
         super().Render()
+    
+    def GetLaunchPosition(self):
+        return self.position + Vector2(-0.5 if self.flip else 1.5,0.4 if self.flip else 0.5)
     
     # Shoot cannonball
     def Shoot(self, direction):
         direction = direction.Normalized()
 
         projectile = Projectile(
-            id=-1, tags=["projectile"], position=self.position + Vector2(-0.5 if self.flip else 1.5,0.4 if self.flip else 0.5), scale=Vector2(1, 1),
+            id=-1, tags=["projectile"], position=self.GetLaunchPosition(), scale=Vector2(1, 1),
             rotation=0, color=(255,255,255), texture=pygame.image.load("src/img/cannonball.png").convert_alpha(), direction=direction, speed=15,
-            damage=35
+            damage=40, targetTags=self.targetTags
         )
         GameObjectManager.instance.addQueue.append(projectile)

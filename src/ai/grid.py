@@ -22,6 +22,7 @@ class Grid(Singleton):
         self.width = width
         self.height = height
         self.walkable = [[True for _ in range(height)] for _ in range(width)]
+        self.blocked_positions = blocked_positions
         for pos in blocked_positions:
             self.walkable[pos.x][pos.y] = False
 
